@@ -1,23 +1,30 @@
-import logo from './logo.svg';
 import './App.css';
+import { useState } from 'react';
+import Diagram from './components/Diagram';
+import { getRandomColor } from './utils';
 
 function App() {
+  const [nodes, setNodes] = useState(
+    [...Array(1000).keys()].map((key) => ({
+      key: key,
+      text: 'Label ' + key,
+      color: getRandomColor(),
+      loc: `${(key % 50) * 200} ${Math.floor(key / 50) * 100}`,
+    }))
+  );
+
+  const [links, setLinks] = useState(
+    [...Array(5000).keys()].map((key) => ({
+      key: -(key + 1),
+      from: key * 2,
+      to: key * 2 + 1,
+      text: `${key * 2} to ${key * 2 + 1}`,
+    }))
+  );
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Diagram nodes={nodes} links={links} />
     </div>
   );
 }
