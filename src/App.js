@@ -1,9 +1,12 @@
 import './App.css';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Diagram from './components/Diagram';
 import { getRandomColor } from './utils';
+import Dropdown from './components/Dropdown';
 
 function App() {
+  const diagramRef = useRef(null);
+
   const [nodes, setNodes] = useState(
     [...Array(1000).keys()].map((key) => ({
       key: key,
@@ -22,9 +25,29 @@ function App() {
     }))
   );
 
+  const handleHighlightSelectedNode = (value) => {
+    const diagram = diagramRef?.current?.getDiagram();
+    const selectedNode = diagram.findNodeForKey(Number(value));
+    diagram.startTransaction('highlight');
+    diagram.select(selectedNode);
+    diagram.commandHandler.scrollToPart(selectedNode);
+    diagram.commitTransaction('highlight');
+  };
+
   return (
     <div className="App">
-      <Diagram nodes={nodes} links={links} />
+      <div className="header">
+        <div>
+          <h2>Valueblue Assignment</h2>
+          <p>Ginthozan</p>
+        </div>
+
+        <Dropdown
+          optionList={nodes}
+          handleChange={handleHighlightSelectedNode}
+        />
+      </div>
+      <Diagram diagramRef={diagramRef} nodes={nodes} links={links} />
     </div>
   );
 }

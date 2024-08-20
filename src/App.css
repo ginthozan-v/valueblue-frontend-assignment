@@ -2,7 +2,20 @@
     display: grid;
     height: 100vh;
     place-content: center;
-    background-color: aliceblue;
+    background-color: #0047BB;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 0;
+    color: #fff;
+}
+
+h2,
+p {
+    margin: 0;
 }
 
 .diagram-component {
@@ -10,4 +23,10 @@
     height: 80vh;
     border: solid 1px black;
     background-color: white;
+}
+
+.dropdown {
+    width: 100px;
+    height: 30px;
+    border: 1px solid gray;
 }
