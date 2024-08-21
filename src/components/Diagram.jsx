@@ -77,7 +77,7 @@ const Diagram = ({
         )
     ), [changeLinkFontSize]);
 
-    // INITIALIZE THE DIAGRAM
+    // INITIALIZE THE DIAGRAM AND MEMOIZE
     const initDiagram = useCallback(() => {
         const diagram = go.GraphObject.make(go.Diagram, {
             'undoManager.isEnabled': true,

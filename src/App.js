@@ -37,6 +37,7 @@ function App() {
     setTimeout(() => setIsSaving(false), 5000);
   }, []);
 
+  // CHANGE FONT SIZE OF THE NODE
   const changeNodeFontSize = useCallback(
     (e, obj) => {
       handleDiagramChange();
@@ -54,6 +55,7 @@ function App() {
     [handleDiagramChange]
   );
 
+  // CHANGE FONT SIZE OF THE LINK
   const changeLinkFontSize = useCallback(
     (e, obj) => {
       handleDiagramChange();
