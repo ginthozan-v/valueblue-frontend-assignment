@@ -1,0 +1,49 @@
+.App {
+    display: grid;
+    height: 100vh;
+    place-content: center;
+    background-color: #0047BB;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 0;
+    color: #fff;
+}
+
+h2,
+p {
+    margin: 0;
+}
+
+.diagram-component {
+    width: 80vw;
+    height: 80vh;
+    border: solid 1px black;
+    background-color: white;
+}
+
+.dropdown {
+    width: 100px;
+    height: 30px;
+    border: 1px solid gray;
+}
+
+.btn-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.icon-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.icon-group p {
+    font-size: 12px;
+}
