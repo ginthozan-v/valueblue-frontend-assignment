@@ -1,102 +1,96 @@
-import React from 'react';
-
 import * as go from 'gojs';
 import { ReactDiagram } from 'gojs-react';
+import { useCallback } from 'react';
 
-const Diagram = ({ diagramRef, nodes, links }) => {
-    const initDiagram = () => {
-        const diagram = new go.Diagram({
+const Diagram = ({
+    diagramRef,
+    nodes,
+    links,
+    changeNodeFontSize,
+    changeLinkFontSize,
+    handleDiagramChange,
+}) => {
+    
+    // CREATE CONTEXT MENU BUTTON
+    const createContextMenuButton = (text, action) =>
+        go.GraphObject.make("ContextMenuButton",
+            go.GraphObject.make(go.TextBlock, text),
+            { click: action }
+        );
+
+    // CREATE NODES
+    const createNodeTemplate = useCallback(() => (
+        go.GraphObject.make(go.Node, 'Auto',
+            {
+                resizable: true,
+                selectionObjectName: 'NODE',
+                width: 70,
+                height: 70,
+                contextMenu: go.GraphObject.make(go.Adornment, 'Vertical',
+                    createContextMenuButton('Change Font Size', changeNodeFontSize)
+                ),
+            },
+            new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
+            go.GraphObject.make(go.Shape, 'Circle', {
+                strokeWidth: 4,
+                stroke: null,
+                name: 'SHAPE',
+                portId: '',
+                fromLinkable: true,
+                toLinkable: true,
+                cursor: 'pointer',
+            }, new go.Binding('fill', 'color')),
+            go.GraphObject.make(go.TextBlock, {
+                margin: 8,
+                font: '10px Verdana',
+                name: 'TEXT',
+            },
+                new go.Binding('text').makeTwoWay(),
+                new go.Binding('font').makeTwoWay())
+        )
+    ), [changeNodeFontSize]);
+
+    // CREATE LINKS
+    const createLinkTemplate = useCallback(() => (
+        go.GraphObject.make(go.Link,
+            {
+                reshapable: true,
+                resegmentable: true,
+                relinkableFrom: true,
+                relinkableTo: true,
+                adjusting: go.LinkAdjusting.Stretch,
+                contextMenu: go.GraphObject.make(go.Adornment, 'Vertical',
+                    createContextMenuButton('Change Font Size', changeLinkFontSize)
+                ),
+            },
+            new go.Binding('points').makeTwoWay(),
+            new go.Binding('fromSpot', 'fromSpot', go.Spot.parse).makeTwoWay(go.Spot.stringify),
+            new go.Binding('toSpot', 'toSpot', go.Spot.parse).makeTwoWay(go.Spot.stringify),
+            go.GraphObject.make(go.Shape),
+            go.GraphObject.make(go.Shape, { toArrow: 'Standard' }),
+            go.GraphObject.make(go.TextBlock, {
+                name: 'TEXT',
+                segmentOffset: new go.Point(0, -10),
+            },
+                new go.Binding('text').makeTwoWay(),
+                new go.Binding('font').makeTwoWay())
+        )
+    ), [changeLinkFontSize]);
+
+    // INITIALIZE THE DIAGRAM
+    const initDiagram = useCallback(() => {
+        const diagram = go.GraphObject.make(go.Diagram, {
             'undoManager.isEnabled': true,
-            'toolManager.mouseWheelBehavior': go.WheelMode.Zoom,
-            model: new go.GraphLinksModel({
+            model: go.GraphObject.make(go.GraphLinksModel, {
                 linkKeyProperty: 'key',
             }),
         });
 
-        function changeNodeFontSize(e, obj) {
-            const selectedNode = diagram.findNodeForKey(Number(obj.part.data.key));
-            if (selectedNode !== null) {
-                diagram.startTransaction('change text size');
-                const graphObject = selectedNode.findObject('NODE');
-                if (graphObject !== null) {
-                    graphObject.scale *= 2;
-                }
-                diagram.commitTransaction('change text size');
-            }
-        }
-
-        function changeLinkFontSize(e, obj) {
-            const selectedLink = diagram.findLinkForKey(Number(obj.part.data.key));
-            if (selectedLink !== null) {
-                diagram.startTransaction('change text size');
-                const graphObject = selectedLink.findObject('NODE');
-                if (graphObject !== null) {
-                    graphObject.scale /= 2;
-                }
-                diagram.commitTransaction('change text size');
-            }
-        }
-
-        // NODES
-        diagram.nodeTemplate = new go.Node('Auto', {
-            contextMenu: go.GraphObject.build('ContextMenu')
-                .add(
-                    go.GraphObject.build('ContextMenuButton', {
-                        click: (e, obj) => changeNodeFontSize(e, obj)
-                    })
-                        .add(new go.TextBlock('change the font size'))
-                ),
-            resizable: true,
-            selectionObjectName: 'NODE',
-            width: 70,
-            height: 70,
-        })
-            .bindTwoWay('location', 'loc', go.Point.parse, go.Point.stringify)
-            .add(
-                new go.Shape('Circle', {
-                    name: 'SHAPE',
-                    strokeWidth: 0,
-                    portId: "",
-                    fromLinkable: true,
-                    toLinkable: true,
-                    cursor: "pointer"
-                })
-                    .bind('fill', 'color'),
-
-                new go.TextBlock({ name: 'NODE', margin: 8 })
-                    .bindTwoWay('text')
-                    .bindTwoWay('font')
-            );
-
-        // LINK BETWEEN NODES
-        diagram.linkTemplate = new go.Link({
-            contextMenu: go.GraphObject.build('ContextMenu')
-                .add(
-                    go.GraphObject.build('ContextMenuButton', {
-                        click: (e, obj) => changeLinkFontSize(e, obj)
-                    })
-                        .add(new go.TextBlock('change the font size'))
-                ),
-            reshapable: true,
-            resegmentable: true,
-            relinkableFrom: true,
-            relinkableTo: true,
-            adjusting: go.LinkAdjusting.Stretch
-        })
-            .bindTwoWay('points')
-            .bindTwoWay('fromSpot', 'fromSpot', go.Spot.parse, go.Spot.stringify)
-            .bindTwoWay('toSpot', 'toSpot', go.Spot.parse, go.Spot.stringify)
-            .add(
-                new go.Shape(),
-                new go.Shape({ toArrow: 'Standard' }),
-                new go.TextBlock({ name: 'NODE', segmentOffset: new go.Point(0, -10) })
-                    .bind('text')
-                    .bindTwoWay('font')
-
-            );
+        diagram.nodeTemplate = createNodeTemplate();
+        diagram.linkTemplate = createLinkTemplate();
 
         return diagram;
-    }
+    }, [createNodeTemplate, createLinkTemplate]);
 
     return (
         <ReactDiagram
@@ -105,6 +99,7 @@ const Diagram = ({ diagramRef, nodes, links }) => {
             divClassName="diagram-component"
             nodeDataArray={nodes}
             linkDataArray={links}
+            onModelChange={handleDiagramChange}
         />
     );
 };
